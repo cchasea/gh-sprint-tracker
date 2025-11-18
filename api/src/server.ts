@@ -11,7 +11,7 @@ import { addDays, eachDayOfInterval, isAfter, isBefore } from "date-fns";
 
 const app = Fastify({ logger: true });
 
-// ---- helpers ----
+//helpers
 function requireUser(req: any) {
   const uid = req.session?.uid;
   if (!uid) {
@@ -38,7 +38,7 @@ const oauth = new OAuthApp({
   clientSecret: process.env.GITHUB_CLIENT_SECRET!,
 });
 
-// ---- boot ----
+//boot
 async function start() {
   await app.register(cookie, { secret: process.env.SESSION_SECRET ?? "0123456789abcdef0123456789abcdef" });
   await app.register(session, {
@@ -51,7 +51,7 @@ async function start() {
   app.get("/", async () => ({ ok: true, routes: ["/healthz", "/auth/github", "/me", "/repos"] }));
   app.get("/healthz", async () => ({ ok: true }));
 
-  // ---- OAuth ----
+  // OAuth
   app.get("/auth/github", async (_req, reply) => {
     const url = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&scope=repo%20read:org`;
     reply.redirect(url);
@@ -85,7 +85,7 @@ async function start() {
     return { id: user.id, login: user.login };
   });
 
-  // ---- repos ----
+  // repos
   app.get("/repos", async (req, _reply) => {
     const uid = requireUser(req);
     const octo = await getOctokit(uid);
@@ -107,7 +107,7 @@ async function start() {
     return { ok: true, repoId: repo.id };
   });
 
-  // ---- sync issues ----
+  // sync issues
   app.post("/sync/:owner/:name", async (req, reply) => {
     const uid = requireUser(req);
     const { owner, name } = req.params as any;
@@ -152,7 +152,7 @@ async function start() {
     return { ok: true, upserts };
   });
 
-  // ---- metrics ----
+  // metrics 
   app.get("/metrics/:owner/:name", async (req, reply) => {
     const uid = requireUser(req);
     const { owner, name } = req.params as any;
@@ -182,7 +182,7 @@ async function start() {
     return { burndown, velocity };
   });
 
-  // ---- errors ----
+  // errors
   app.setErrorHandler((err, _req, reply) => {
     const code = (err as any).statusCode ?? 500;
     app.log.error(err);
