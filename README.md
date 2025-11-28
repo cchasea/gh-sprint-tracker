@@ -25,14 +25,14 @@ A lightweight **full-stack web application** that analyzes GitHub repositories t
 
 ##  Setup Instructions
 
-### 1️⃣ Clone the Repository
+### 1️ Clone the Repository
 ```bash
 git clone https://github.com/cchasea/gh-sprint-tracker.git
 cd gh-sprint-tracker/api
 npm install
 ````
 
-### 2️⃣ Configure Environment Variables
+### 2 Configure Environment Variables
 
 Create a `.env` file in `/api` with the following content:
 
@@ -43,7 +43,7 @@ GITHUB_CLIENT_SECRET=your_client_secret
 SESSION_SECRET=your_64_character_secret
 ```
 
-### 3️⃣ Start PostgreSQL (Example using Docker)
+### 3 Start PostgreSQL (Example using Docker)
 
 ```bash
 docker run --name pg \
@@ -54,7 +54,7 @@ docker run --name pg \
   -d postgres:16
 ```
 
-### 4️⃣ Push Prisma Schema and Start Server
+### 4️ Push Prisma Schema and Start Server
 
 ```bash
 npx prisma db push
