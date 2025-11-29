@@ -1,4 +1,7 @@
 # GitHub Sprint Tracker
+<p align="center">
+  <img src="images/gh-sprint-tracker.png" width="60%" />
+</p>
 
 A lightweight **full-stack web application** that analyzes GitHub repositories to visualize sprint velocity and issue burndown for software teams.
 
