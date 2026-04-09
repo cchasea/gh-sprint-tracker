@@ -1,0 +1,67 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: dev
+          POSTGRES_PASSWORD: dev
+          POSTGRES_DB: ghtracker
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U dev"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      #  BACKEND 
+      - name: Install backend deps
+        run: |
+          cd api
+          npm install
+
+      - name: Generate Prisma client
+        run: |
+          cd api
+          npx prisma generate
+
+      - name: Push DB schema
+        run: |
+          cd api
+          npx prisma db push
+        env:
+          DATABASE_URL: postgresql://dev:dev@localhost:5432/ghtracker
+
+      - name: Type check backend
+        run: |
+          cd api
+          npx tsc --noEmit
+
+      #  FRONTEND 
+      - name: Install frontend deps
+        run: |
+          cd frontend
+          npm install
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
