@@ -1,61 +1,85 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import axios from 'axios'
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
+import axios from "axios";
+import BurndownChart from "./BurndownChart";
+
+axios.defaults.withCredentials = true;
+
+const API = import.meta.env.VITE_API_URL;
 
 export default function App() {
-  const api = import.meta.env.VITE_API_URL || 'http://localhost:3000';
   const [user, setUser] = useState(null);
   const [repos, setRepos] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [metrics, setMetrics] = useState(null);
 
-  // try to fetch current user (if logged in)
+  // check login
   useEffect(() => {
-    axios
-      .get(`${api}/me`, { withCredentials: true })
+    axios.get(`${API}/me`)
       .then(res => setUser(res.data))
-      .catch(() => {
-        setUser(null); // not logged in is fine
-      });
-  }, [api]);
+      .catch(() => {});
+  }, []);
 
-  // when have a user load repos
+  // load repos after login
   useEffect(() => {
     if (!user) return;
-    axios
-      .get(`${api}/repos`, { withCredentials: true })
-      .then(res => setRepos(res.data))
-      .catch(err => {
-        console.error('Error loading repos', err);
-      });
-  }, [user, api]);
+    axios.get(`${API}/repos`)
+      .then(res => setRepos(res.data));
+  }, [user]);
 
   const login = () => {
-    window.location.href = `${api}/auth/github`;
+    window.location.href = `${API}/auth/github`;
   };
 
+  const trackRepo = async (repo) => {
+    await axios.post(`${API}/track`, {
+      owner: repo.owner,
+      name: repo.name,
+      githubRepoId: repo.id
+    });
+  };
+
+  const syncRepo = async (repo) => {
+    await axios.post(`${API}/sync/${repo.owner}/${repo.name}`);
+  };
+
+  const loadMetrics = async (repo) => {
+    const res = await axios.get(`${API}/metrics/${repo.owner}/${repo.name}`);
+    setMetrics(res.data.burndown);
+    setSelected(repo);
+  };
+
+// UI 
   if (!user) {
     return (
-      <div>
+      <div style={{ padding: 40 }}>
         <h1>GitHub Sprint Tracker</h1>
-        <button onClick={login}>
-          Login with GitHub
-        </button>
+        <button onClick={login}>Login with GitHub</button>
       </div>
     );
   }
 
   return (
-    <div>
-      <h1>GitHub Sprint Tracker</h1>
-      <p>Logged in as {user.login}</p>
+    <div style={{ padding: 40 }}>
+      <h2>Logged in as {user.login}</h2>
 
-      <h2>Your Repos</h2>
+      <h3>Your Repos</h3>
+
       {repos.map(r => (
-        <div key={r.id}>
-          {r.owner}/{r.name}
+        <div key={r.id} style={{ marginBottom: 10 }}>
+          <b>{r.owner}/{r.name}</b>
+
+          <button onClick={() => trackRepo(r)}>Track</button>
+          <button onClick={() => syncRepo(r)}>Sync</button>
+          <button onClick={() => loadMetrics(r)}>View</button>
         </div>
       ))}
+
+      {selected && metrics && (
+        <>
+          <h3>Burndown: {selected.name}</h3>
+          <BurndownChart data={metrics} />
+        </>
+      )}
     </div>
   );
 }

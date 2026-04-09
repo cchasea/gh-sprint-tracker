@@ -4,6 +4,7 @@ import Fastify from "fastify";
 import cookie from "@fastify/cookie";
 import session from "@fastify/session";
 import formbody from "@fastify/formbody";
+import cors from "@fastify/cors";
 import { OAuthApp } from "@octokit/oauth-app";
 import { Octokit } from "@octokit/rest";
 import { prisma } from "./prisma"; // create api/src/prisma.ts exporting new PrismaClient()
@@ -45,6 +46,11 @@ async function start() {
     secret: process.env.SESSION_SECRET ?? "0123456789abcdef0123456789abcdef",
     cookie: { secure: false },
   });
+  await app.register(cors, {
+    origin: "http://localhost:5173",
+    credentials: true,
+  });
+  
   await app.register(formbody);
 
   // optional root for quick check
@@ -74,7 +80,7 @@ async function start() {
     });
 
     (req.session as any).uid = user.id;
-    reply.redirect("/me");
+    reply.redirect("http://localhost:5173");
   });
 
   app.get("/me", async (req, reply) => {
@@ -168,23 +174,30 @@ async function start() {
     const days = eachDayOfInterval({ start: s, end: e });
 
     const burndown = days.map((d: Date) => {
-      const remaining = issues.filter(i =>
-        isBefore(new Date(i.createdAt), addDays(d, 1)) &&
-        (!i.closedAt || isAfter(new Date(i.closedAt), d))
-      ).length;
-      return { date: d.toISOString().slice(0, 10), remaining };
-    });
+    const remaining = issues.filter((i: any) =>
+    isBefore(new Date(i.createdAt), addDays(d, 1)) &&
+    (!i.closedAt || isAfter(new Date(i.closedAt), d))).length;
 
-    const velocity = issues
-      .filter(i => i.closedAt && !isBefore(new Date(i.closedAt), s) && !isAfter(new Date(i.closedAt), e))
-      .reduce((sum, i) => sum + (i.points ?? 1), 0);
+  return {
+    date: d.toISOString().slice(0, 10),
+    remaining,
+  };
+});
+
+const velocity = issues
+  .filter((i: any) =>
+    i.closedAt &&
+    !isBefore(new Date(i.closedAt), s) &&
+    !isAfter(new Date(i.closedAt), e)
+  )
+  .reduce((sum: number, i: any) => sum + (i.points ?? 1), 0);
 
     return { burndown, velocity };
   });
 
   // errors
-  app.setErrorHandler((err, _req, reply) => {
-    const code = (err as any).statusCode ?? 500;
+  app.setErrorHandler((err: any, _req, reply) => {
+    const code = err.statusCode ?? 500;
     app.log.error(err);
     reply.code(code).send({ error: err.message });
   });
