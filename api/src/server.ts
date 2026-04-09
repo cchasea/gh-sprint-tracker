@@ -12,6 +12,9 @@ import { addDays, eachDayOfInterval, isAfter, isBefore } from "date-fns";
 
 const app = Fastify({ logger: true });
 
+// CI TEST
+const x: number = "fail";
+
 //helpers
 function requireUser(req: any) {
   const uid = req.session?.uid;
