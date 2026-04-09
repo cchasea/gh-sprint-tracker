@@ -3,20 +3,20 @@
   <img src="images/gh-sprint-tracker.png" width="60%" />
 </p>
 
-A lightweight **full-stack web application** that analyzes GitHub repositories to visualize sprint velocity and issue burndown for software teams.
+A **full-stack web application** that analyzes GitHub repositories to visualize sprint velocity and issue burndown for software teams.
 
 ---
 
 ##  Features
 -  **GitHub OAuth login** for secure authentication  
 -  **Repository tracking** and issue synchronization via GitHub API  
--  **Metrics endpoint** returning burndown and velocity data  
+-  **Metrics endpoint** returning burndown and velocity data (velocity in progress) 
 -  **Prisma ORM** + **PostgreSQL** for reliable data storage  
--  Built with **Fastify** and **TypeScript** for performance and type safety  
+-  Built with **Fastify** and **TypeScript** 
 
 ---
 
-## Tech Stack
+## Tech 
 | Category | Technologies |
 |-----------|--------------|
 | **Backend** | Fastify, TypeScript, Prisma, PostgreSQL |
@@ -85,24 +85,11 @@ npm run dev
 
 **Burndown Sample**
 
-```json
-[
-  { "date": "2025-10-01", "remaining": 9 },
-  { "date": "2025-10-02", "remaining": 6 },
-  { "date": "2025-10-03", "remaining": 3 }
-]
-```
 
-**Velocity Sample**
 
-```json
-{ "velocity": 21 }
-```
-
----
 
 ## Project Status
 
-In Progress. Backend functional. Frontend dashboard (React + Chart.js) in development.
+In Progress. Backend and Frontend functional. Working on more including more metrics besides burndown.
 
 ---
