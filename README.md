@@ -85,11 +85,13 @@ npm run dev
 
 **Burndown Sample**
 
-
+<p align="center">
+  <img src="images/burndown_example.png" width="60%" />
+</p>
 
 
 ## Project Status
 
-In Progress. Backend and Frontend functional. Working on more including more metrics besides burndown.
+Backend and Frontend functional. Working on displaying velocity metrics.
 
 ---
